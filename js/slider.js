@@ -19,8 +19,6 @@ $.Slider = Backbone.View.extend({
 		currentControllClassName: 'current',
 		defaultIndex: 0,
 		maxView: 1,
-		mask: true,
-		maskClassName: 'mask',
 		animateDuration: 750,
 		animateEasing: 'swing',
 		animateOpt: { },
@@ -49,7 +47,6 @@ $.Slider = Backbone.View.extend({
 		this.$prev = this.$el.find(opt.prevEl);
 		this.$controllContainer = this.$el.find(opt.controllNavEl);
 		this.$controll = {};
-		this.$mask = [];
 		// property
 		this.itemWidth = this.$slide.width() + parseInt(this.$slide.css('margin-left'), 10) + parseInt(this.$slide.css('margin-right'), 10);
 		this.index = opt.defaultIndex;
@@ -59,7 +56,6 @@ $.Slider = Backbone.View.extend({
 	},
 	render: function () {
 		this._buildControll();
-		if (this.options.mask) { this._buildMask(); }
 		this.$container.css({
 			'margin-left': -1 * this.itemWidth * this.index,
 			'width': this._getWholeWidth(),
@@ -76,15 +72,6 @@ $.Slider = Backbone.View.extend({
 			this.$controllContainer.append(el);
 		}
 		this.$controll = this.$controllContainer.find('a');
-	},
-	_buildMask: function () {
-		for (var i=0,l=this.$slide.length; i<l ; i++) {
-			var mask = $('<div/>', { 'class': this.options.maskClassName });
-			if (i === this.index) { mask.hide(); }
-			$(this.$slide[i]).append(mask);
-			// save element
-			this.$mask.push(mask);
-		}
 	},
 	_scrollNext: function (e) {
 		var self = this;
@@ -167,13 +154,6 @@ $.Slider = Backbone.View.extend({
 		var movePos = -1 * this.itemWidth * index;
 		this.$container.stop(true, true).css({
 			'margin-left': movePos
-		});
-		_.each(this.$mask, function (mask, i) {
-			if (i === index) {
-				$(mask).hide();
-			} else {
-				$(mask).show();
-			}
 		});
 		this.index = index;
 		this._updateNav();
