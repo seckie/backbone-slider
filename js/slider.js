@@ -44,7 +44,7 @@ $.Slider = Backbone.View.extend({
 		this.itemWidth = this.$slide.width() + parseInt(this.$slide.css('margin-left'), 10) + parseInt(this.$slide.css('margin-right'), 10);
 		this.index = opt.defaultIndex;
 		this.$cover = $('<div class="slider-cover"/>');
-		this.action.initComplete();
+		this.action.initComplete.call(this);
 
 		this.render();
 	},
@@ -57,7 +57,7 @@ $.Slider = Backbone.View.extend({
 		});
 		$('body').append(this.$cover);
 		this._updateNav();
-		this.action.renderComplete();
+		this.action.renderComplete.call(this);
 	},
 	_buildControll: function () {
 		for (var i=0,l=this.$slide.length; i<l ; i++) {
@@ -70,7 +70,7 @@ $.Slider = Backbone.View.extend({
 	_scrollNext: function (e) {
 		var self = this;
 		if (this.index < (this.$slide.length - this.options.maxView)) {
-			this.action.scrollStart(); // callback
+			this.action.scrollStart.call(this, this.index); // callback
 			this.$cover.show(); // prevent other events
 			this.$container.stop(true, true).animate({
 				'margin-left': '-=' + this.itemWidth
@@ -78,7 +78,7 @@ $.Slider = Backbone.View.extend({
 				this.options.animateDuration,
 				this.options.animateEasing, function () {
 					self.$cover.hide();
-					self.action.scrollEnd(); // callback
+					self.action.scrollEnd.call(self, self.index); // callback
 				});
 			this.index ++;
 			this._updateNav();
@@ -88,7 +88,7 @@ $.Slider = Backbone.View.extend({
 	_scrollPrev: function (e) {
 		var self = this;
 		if (this.index > 0) {
-			this.action.scrollStart(); // callback
+			this.action.scrollStart.call(this, this.index); // callback
 			this.$cover.show(); // prevent other events
 			this.$container.stop(true, true).animate({
 					'margin-left': '+=' + this.itemWidth
@@ -97,7 +97,7 @@ $.Slider = Backbone.View.extend({
 				this.options.animateEasing,
 				function () {
 					self.$cover.hide();
-					self.action.scrollEnd(); // callback
+					self.action.scrollEnd.call(self, self.index); // callback
 				});
 			this.index --;
 			this._updateNav();
@@ -108,13 +108,13 @@ $.Slider = Backbone.View.extend({
 		var self = this;
 		if (this.index <= 0) {
 			this.$prev.hide();
-			this.action.firstSlide();
+			this.action.firstSlide.call(this, this.index);
 		} else {
 			this.$prev.show();
 		}
 		if (this.index >= (this.$slide.length - this.options.maxView)) {
 			this.$next.hide();
-			this.action.lastSlide();
+			this.action.lastSlide.call(this, this.index);
 		} else {
 			this.$next.show();
 		}
@@ -156,10 +156,10 @@ $.Slider = Backbone.View.extend({
 	action: {
 		initComplete: function () { },
 		renderComplete: function () { },
-		scrollStart: function () { },
-		scrollEnd: function () { },
-		firstSlide: function () { },
-		lastSlide: function () { }
+		scrollStart: function (index) { },
+		scrollEnd: function (index) { },
+		firstSlide: function (index) { },
+		lastSlide: function (index) { }
 	}
 });
 
