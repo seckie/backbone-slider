@@ -22,24 +22,17 @@ $.Slider = Backbone.View.extend({
 		animateDuration: 750,
 		animateEasing: 'swing',
 		animateOpt: { },
-		renderComplete: function () { },
-		action: {
-			scrollStart: function () { },
-			scrollEnd: function () { },
-			firstSlide: function () { },
-			lastSlide: function () { }
-		}
+		action: { }
 	},
 	events: {
 		'click .next': '_scrollNext',
 		'click .prev': '_scrollPrev',
 		'click .controll a': '_jump'
 	},
-	initialize: function (opt) {
-		_.extend(this.options, opt);
+	initialize: function (options) {
+		var opt = this.options;
+		_.extend(this.options, options);
 		_.extend(this.action, opt.action);
-		var self = this,
-			opt = this.options;
 		// element
 		this.$container = $(opt.slideContainerEl);
 		this.$slide = this.$container.find(opt.slideEl);
@@ -51,6 +44,7 @@ $.Slider = Backbone.View.extend({
 		this.itemWidth = this.$slide.width() + parseInt(this.$slide.css('margin-left'), 10) + parseInt(this.$slide.css('margin-right'), 10);
 		this.index = opt.defaultIndex;
 		this.$cover = $('<div class="slider-cover"/>');
+		this.action.initComplete();
 
 		this.render();
 	},
@@ -63,7 +57,7 @@ $.Slider = Backbone.View.extend({
 		});
 		$('body').append(this.$cover);
 		this._updateNav();
-		this.options.renderComplete();
+		this.action.renderComplete();
 	},
 	_buildControll: function () {
 		for (var i=0,l=this.$slide.length; i<l ; i++) {
@@ -158,8 +152,10 @@ $.Slider = Backbone.View.extend({
 		this.index = index;
 		this._updateNav();
 	},
-	// interface
+	// interface functions that should be overridden
 	action: {
+		initComplete: function () { },
+		renderComplete: function () { },
 		scrollStart: function () { },
 		scrollEnd: function () { },
 		firstSlide: function () { },
