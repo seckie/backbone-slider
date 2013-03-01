@@ -1,21 +1,18 @@
 /**
  * $.Slider
  *
- * @author     RaNa gRam
- *             Naoki Sekiguchi
- * @url        http://ranagram.com/
- *             http://likealunatic.jp/
+ * @author     Naoki Sekiguchi (RaNa gRam)
+ * @url        https://github.com/seckie/Backbone-View-Slider
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @requires   jQuery.js, Underscore.js, Backbone.js, jQuery Transit
+ * @requires   jQuery.js, Underscore.js, Backbone.js
  */
 
 (function($, _, Backbone, window, document) {
 
 $.Slider = Backbone.View.extend({
 	options: {
-		slideContainerEl: '.slide-container',
+		slideContainerEl: '.slides',
 		slideEl: '.slide',
-		directionNavEl: '.direction',
 		prevEl: '.prev',
 		nextEl: '.next',
 		controllNavEl: '.controll',
@@ -27,18 +24,21 @@ $.Slider = Backbone.View.extend({
 		animateDuration: 750,
 		animateEasing: 'swing',
 		animateOpt: { },
-		renderComplete: function () { }
+		renderComplete: function () { },
+		action: {
+			scrollStart: function () { },
+			scrollEnd: function () { },
+			firstSlide: function () { },
+			lastSlide: function () { }
+		}
 	},
 	events: {
-		'click a.next': '_scrollNext',
-		'click a.prev': '_scrollPrev',
+		'click .next': '_scrollNext',
+		'click .prev': '_scrollPrev',
 		'click .controll a': '_jump'
 	},
 	initialize: function (opt) {
 		_.extend(this.options, opt);
-		if (!$.support.transition) {
-			this.options.animateEasing = this.options.animateEasingFallback;
-		}
 		_.extend(this.action, opt.action);
 		var self = this,
 			opt = this.options;
@@ -91,25 +91,14 @@ $.Slider = Backbone.View.extend({
 		if (this.index < (this.$slide.length - this.options.maxView)) {
 			this.action.scrollStart(); // callback
 			this.$cover.show(); // prevent other events
-			if ($.support.transition) {
-				this.$container.stop(true, true).transition({
-					'margin-left': '-=' + this.itemWidth
-					},
-					this.options.animateDuration,
-					this.options.animateEasing, function () {
-						self.$cover.hide();
-						self.action.scrollEnd(); // callback
-					});
-			} else {
-				this.$container.stop(true, true).animate({
-					'margin-left': '-=' + this.itemWidth
-					},
-					this.options.animateDuration,
-					this.options.animateEasing, function () {
-						self.$cover.hide();
-						self.action.scrollEnd(); // callback
-					});
-			}
+			this.$container.stop(true, true).animate({
+				'margin-left': '-=' + this.itemWidth
+				},
+				this.options.animateDuration,
+				this.options.animateEasing, function () {
+					self.$cover.hide();
+					self.action.scrollEnd(); // callback
+				});
 			this.index ++;
 			this._updateNav();
 		}
@@ -120,27 +109,15 @@ $.Slider = Backbone.View.extend({
 		if (this.index > 0) {
 			this.action.scrollStart(); // callback
 			this.$cover.show(); // prevent other events
-			if ($.support.transition) {
-				this.$container.stop(true, true).transition({
-						'margin-left': '+=' + this.itemWidth
-					},
-					this.options.animateDuration,
-					this.options.animateEasing,
-					function () {
-						self.$cover.hide();
-						self.action.scrollEnd(); // callback
-					});
-			} else {
-				this.$container.stop(true, true).animate({
-						'margin-left': '+=' + this.itemWidth
-					},
-					this.options.animateDuration,
-					this.options.animateEasing,
-					function () {
-						self.$cover.hide();
-						self.action.scrollEnd(); // callback
-					});
-			}
+			this.$container.stop(true, true).animate({
+					'margin-left': '+=' + this.itemWidth
+				},
+				this.options.animateDuration,
+				this.options.animateEasing,
+				function () {
+					self.$cover.hide();
+					self.action.scrollEnd(); // callback
+				});
 			this.index --;
 			this._updateNav();
 		}
@@ -173,19 +150,13 @@ $.Slider = Backbone.View.extend({
 		return sum;
 	},
 	_jump: function (e) {
-		var nav = event.currentTarget,
+		var nav = e.currentTarget,
 			$slide = this.$slide[nav.index],
 			movePos = -1 * this.itemWidth * nav.index;
 
-		if ($.support.transition) {
-			this.$container.stop(true, true).transition({
-				'margin-left': movePos
-			}, this.options.animateOpt);
-		} else {
-			this.$container.stop(true, true).animate({
-				'margin-left': movePos
-			}, this.options.animateOpt);
-		}
+		this.$container.stop(true, true).animate({
+			'margin-left': movePos
+		}, this.options.animateOpt);
 
 		this.index = nav.index;
 		this._updateNav();
