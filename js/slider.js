@@ -67,18 +67,32 @@ $.Slider = Backbone.View.extend({
 		this.$controll = this.$controllContainer.find('a');
 	},
 	_scrollNext: function (e) {
-		var self = this;
+		var self = this,
+			callback;
 		if (this.index < (this.$slide.length - this.options.maxView)) {
-			this.action.scrollStart.call(this, this.index); // callback
-			this._scroll(1);
+			callback = this.action.scrollStart.call(this, this.index);
+			if (callback && callback.promise) {
+				callback.done(function () {
+					self._scroll(1);
+				});
+			} else {
+				this._scroll(1);
+			}
 		}
 		e.preventDefault();
 	},
 	_scrollPrev: function (e) {
-		var self = this;
+		var self = this,
+			callback;
 		if (this.index > 0) {
-			this.action.scrollStart.call(this, this.index); // callback
-			this._scroll(-1);
+			callback = this.action.scrollStart.call(this, this.index);
+			if (callback && callback.promise) {
+				callback.done(function () {
+					self._scroll(-1);
+				});
+			} else {
+				this._scroll(-1);
+			}
 		}
 		e.preventDefault();
 	},
