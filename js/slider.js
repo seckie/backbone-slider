@@ -158,6 +158,7 @@ $.Slider = Backbone.View.extend({
 
 		this.index = nav.index;
 		this._updateNav();
+		this.action.jumpComplete.call(this, this.index);
 
 		e.preventDefault();
 	},
@@ -174,6 +175,8 @@ $.Slider = Backbone.View.extend({
 	action: {
 		initComplete: function () { },
 		renderComplete: function () { },
+		resetComplete: function (index) { },
+		jumpComplete: function (index) { },
 		scrollStart: function (index) { },
 		scrollEnd: function (index) { },
 		firstSlide: function (index) { },
