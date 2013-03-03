@@ -71,6 +71,7 @@ $.Slider = Backbone.View.extend({
 			callback;
 		if (this.index < (this.$slide.length - this.options.maxView)) {
 			callback = this.action.scrollStart.call(this, this.index);
+			this.$cover.show(); // prevent other events
 			if (callback && callback.promise) {
 				callback.done(function () {
 					self._scroll(1);
@@ -86,6 +87,7 @@ $.Slider = Backbone.View.extend({
 			callback;
 		if (this.index > 0) {
 			callback = this.action.scrollStart.call(this, this.index);
+			this.$cover.show(); // prevent other events
 			if (callback && callback.promise) {
 				callback.done(function () {
 					self._scroll(-1);
@@ -100,7 +102,6 @@ $.Slider = Backbone.View.extend({
 		var self = this,
 			pos = (dir > 0) ? '-=' + this.itemWidth : '+=' + this.itemWidth;
 		if (!dir) { return; }
-		this.$cover.show(); // prevent other events
 		this.$container.stop(true, true).animate({
 				'margin-left': pos
 			},
