@@ -21,7 +21,6 @@ $.Slider = Backbone.View.extend({
 		maxView: 1,
 		animateDuration: 750,
 		animateEasing: 'swing',
-		animateOpt: { },
 		action: { }
 	},
 	events: {
@@ -43,7 +42,7 @@ $.Slider = Backbone.View.extend({
 		// property
 		this.itemWidth = this.$slide.width() + parseInt(this.$slide.css('margin-left'), 10) + parseInt(this.$slide.css('margin-right'), 10);
 		this.index = opt.defaultIndex;
-		this.$cover = $('<div class="slider-cover"/>');
+		this.$cover = $('<div class="slider-cover"/>').hide();
 		this.action.initComplete.call(this);
 
 		this.render();
@@ -131,13 +130,20 @@ $.Slider = Backbone.View.extend({
 		return sum;
 	},
 	_jump: function (e) {
-		var nav = e.currentTarget,
+		var self = this,
+			nav = e.currentTarget,
 			$slide = this.$slide[nav.index],
 			movePos = -1 * this.itemWidth * nav.index;
 
+		this.$cover.show(); // prevent other events
 		this.$container.stop(true, true).animate({
-			'margin-left': movePos
-		}, this.options.animateOpt);
+				'margin-left': movePos
+			}, 
+			this.options.animateDuration,
+			this.options.animateEasing,
+			function () {
+				self.$cover.hide();
+			});
 
 		this.index = nav.index;
 		this._updateNav();

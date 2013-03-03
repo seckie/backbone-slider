@@ -50,3 +50,5 @@ a { color: #3399ff; }
 #slide2 { background-color: #eee; }
 
 #slide4 { background-color: #eee; }
+
+.slider-cover { position: absolute; z-index: 999; top: 0; left: 0; width: 100%; height: 100%; }
