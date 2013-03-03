@@ -151,6 +151,7 @@ $.Slider = Backbone.View.extend({
 		});
 		this.index = index;
 		this._updateNav();
+		this.action.resetComplete.call(this, index);
 	},
 	// interface functions that should be overridden
 	action: {
