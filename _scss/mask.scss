@@ -1,0 +1,13 @@
+@import "compass/css3";
+$slidewidth: 960px;
+$slideheight: floor($slidewidth / 1.775);
+.slide .mask {
+	position: absolute;
+	z-index: 20;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: $slideheight;
+	background-color: #000;
+	@include opacity(.5);
+}
