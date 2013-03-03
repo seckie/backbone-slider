@@ -140,26 +140,36 @@ $.Slider = Backbone.View.extend({
 		}
 		return sum;
 	},
+
 	_jump: function (e) {
 		var self = this,
 			nav = e.currentTarget,
-			$slide = this.$slide[nav.index],
-			movePos = -1 * this.itemWidth * nav.index;
-
+			index = nav.index,
+			$slide = this.$slide[index],
+			movePos = -1 * this.itemWidth * index,
+			callback = this.action.jumpStart.call(this, index);
 		this.$cover.show(); // prevent other events
-		this.$container.stop(true, true).animate({
-				'margin-left': movePos
-			}, 
-			this.options.animateDuration,
-			this.options.animateEasing,
-			function () {
-				self.$cover.hide();
+		if (callback && callback.promise) {
+			callback.done(function () {
+				fire.call(self, index);
 			});
+		} else {
+			fire.call(this, index);
+		}
 
-		this.index = nav.index;
-		this._updateNav();
-		this.action.jumpComplete.call(this, this.index);
-
+		function fire(index) {
+			this.$container.stop(true, true).animate({
+					'margin-left': movePos
+				}, 
+				this.options.animateDuration,
+				this.options.animateEasing,
+				function () {
+					self.$cover.hide();
+					self.action.jumpEnd.call(self, self.index); // callback
+				});
+			this.index = index;
+			this._updateNav();
+		}
 		e.preventDefault();
 	},
 	reset: function (index) {
@@ -176,7 +186,8 @@ $.Slider = Backbone.View.extend({
 		initComplete: function () { },
 		renderComplete: function () { },
 		resetComplete: function (index) { },
-		jumpComplete: function (index) { },
+		jumpStart: function (index) { },
+		jumpEnd: function (index) { },
 		scrollStart: function (index) { },
 		scrollEnd: function (index) { },
 		firstSlide: function (index) { },
