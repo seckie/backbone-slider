@@ -70,17 +70,7 @@ $.Slider = Backbone.View.extend({
 		var self = this;
 		if (this.index < (this.$slide.length - this.options.maxView)) {
 			this.action.scrollStart.call(this, this.index); // callback
-			this.$cover.show(); // prevent other events
-			this.$container.stop(true, true).animate({
-				'margin-left': '-=' + this.itemWidth
-				},
-				this.options.animateDuration,
-				this.options.animateEasing, function () {
-					self.$cover.hide();
-					self.action.scrollEnd.call(self, self.index); // callback
-				});
-			this.index ++;
-			this._updateNav();
+			this._scroll(1);
 		}
 		e.preventDefault();
 	},
@@ -88,20 +78,26 @@ $.Slider = Backbone.View.extend({
 		var self = this;
 		if (this.index > 0) {
 			this.action.scrollStart.call(this, this.index); // callback
-			this.$cover.show(); // prevent other events
-			this.$container.stop(true, true).animate({
-					'margin-left': '+=' + this.itemWidth
-				},
-				this.options.animateDuration,
-				this.options.animateEasing,
-				function () {
-					self.$cover.hide();
-					self.action.scrollEnd.call(self, self.index); // callback
-				});
-			this.index --;
-			this._updateNav();
+			this._scroll(-1);
 		}
 		e.preventDefault();
+	},
+	_scroll: function (dir) {
+		var self = this,
+			pos = (dir > 0) ? '-=' + this.itemWidth : '+=' + this.itemWidth;
+		if (!dir) { return; }
+		this.$cover.show(); // prevent other events
+		this.$container.stop(true, true).animate({
+				'margin-left': pos
+			},
+			this.options.animateDuration,
+			this.options.animateEasing,
+			function () {
+				self.$cover.hide();
+				self.action.scrollEnd.call(self, self.index); // callback
+			});
+		(dir > 0) ? this.index ++ : this.index --;
+		this._updateNav();
 	},
 	_updateNav: function () {
 		var self = this;
