@@ -14,7 +14,7 @@
 }
 
 $slidewidth: 960px;
-$slideheight: ($slidewidth / 4 * 3);
+$slideheight: floor($slidewidth / 1.775);
 $linkcolor: #3399ff;
 $hoverlinkcolor: #66ccff;
 
