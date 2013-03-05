@@ -43,7 +43,7 @@ $.Slider = Backbone.View.extend({
 		this.itemWidth = this.$slide.width() + parseInt(this.$slide.css('margin-left'), 10) + parseInt(this.$slide.css('margin-right'), 10);
 		this.index = opt.defaultIndex;
 		this.$cover = $('<div class="slider-cover"/>').hide();
-		this.action.initComplete.call(this);
+		this.action.initComplete.call(this); // action
 
 		this.render();
 	},
@@ -56,7 +56,7 @@ $.Slider = Backbone.View.extend({
 		});
 		$('body').append(this.$cover);
 		this._updateNav();
-		this.action.renderComplete.call(this);
+		this.action.renderComplete.call(this); // action
 	},
 	_buildControll: function () {
 		for (var i=0,l=this.$slide.length; i<l ; i++) {
@@ -70,7 +70,7 @@ $.Slider = Backbone.View.extend({
 		var self = this,
 			callback;
 		if (this.index < (this.$slide.length - this.options.maxView)) {
-			callback = this.action.scrollStart.call(this, this.index);
+			callback = this.action.scrollStart.call(this, this.index); // action
 			this.$cover.show(); // prevent other events
 			if (callback && callback.promise) {
 				callback.done(function () {
@@ -86,7 +86,7 @@ $.Slider = Backbone.View.extend({
 		var self = this,
 			callback;
 		if (this.index > 0) {
-			callback = this.action.scrollStart.call(this, this.index);
+			callback = this.action.scrollStart.call(this, this.index); // action
 			this.$cover.show(); // prevent other events
 			if (callback && callback.promise) {
 				callback.done(function () {
@@ -109,7 +109,7 @@ $.Slider = Backbone.View.extend({
 			this.options.animateEasing,
 			function () {
 				self.$cover.hide();
-				self.action.scrollEnd.call(self, self.index); // callback
+				self.action.scrollEnd.call(self, self.index); // action
 			});
 		(dir > 0) ? this.index ++ : this.index --;
 		this._updateNav();
@@ -118,13 +118,13 @@ $.Slider = Backbone.View.extend({
 		var self = this;
 		if (this.index <= 0) {
 			this.$prev.hide();
-			this.action.firstSlide.call(this, this.index);
+			this.action.firstSlide.call(this, this.index); // action
 		} else {
 			this.$prev.show();
 		}
 		if (this.index >= (this.$slide.length - this.options.maxView)) {
 			this.$next.hide();
-			this.action.lastSlide.call(this, this.index);
+			this.action.lastSlide.call(this, this.index); // action
 		} else {
 			this.$next.show();
 		}
@@ -141,13 +141,13 @@ $.Slider = Backbone.View.extend({
 		return sum;
 	},
 
-	_jump: function (e) {
-		var self = this,
-			nav = e.currentTarget,
-			index = nav.index,
+	_jump: function (e, directIndex) {
+		var self = this;
+			nav = e ? e.currentTarget : null,
+			index = nav ? nav.index : directIndex,
 			$slide = this.$slide[index],
 			movePos = -1 * this.itemWidth * index,
-			callback = this.action.jumpStart.call(this, index);
+			callback = this.action.jumpStart.call(this, index, directIndex); // action
 		this.$cover.show(); // prevent other events
 		if (callback && callback.promise) {
 			callback.done(function () {
@@ -165,12 +165,17 @@ $.Slider = Backbone.View.extend({
 				this.options.animateEasing,
 				function () {
 					self.$cover.hide();
-					self.action.jumpEnd.call(self, self.index); // callback
+					self.action.jumpEnd.call(self, self.index, directIndex); // action
 				});
 			this.index = index;
 			this._updateNav();
 		}
-		e.preventDefault();
+		if (e) {
+			e.preventDefault();
+		}
+	},
+	jump: function (index) {
+		this._jump(null, index);
 	},
 	reset: function (index) {
 		var movePos = -1 * this.itemWidth * index;
@@ -179,7 +184,7 @@ $.Slider = Backbone.View.extend({
 		});
 		this.index = index;
 		this._updateNav();
-		this.action.resetComplete.call(this, index);
+		this.action.resetComplete.call(this, index); // action
 	},
 	// interface functions that should be overridden
 	action: {
