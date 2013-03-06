@@ -163,15 +163,23 @@ $.Slider = Backbone.View.extend({
 		}
 
 		function fire(index) {
-			this.$container.stop(true, true).animate({
+			if (directIndex) {
+				this.$container.css({
 					'margin-left': movePos
-				}, 
-				this.options.animateDuration,
-				this.options.animateEasing,
-				function () {
-					self.$cover.hide();
-					self.action.jumpEnd.call(self, self.index, directIndex); // action
 				});
+				this.$cover.hide();
+				this.action.jumpEnd.call(this, this.index, directIndex); // action
+			} else {
+				this.$container.stop(true, true).animate({
+						'margin-left': movePos
+					}, 
+					this.options.animateDuration,
+					this.options.animateEasing,
+					function () {
+						self.$cover.hide();
+						self.action.jumpEnd.call(self, self.index, directIndex); // action
+					});
+			}
 			this.index = index;
 			this._updateNav();
 		}
