@@ -10,7 +10,7 @@
 (function($, _, Backbone, window, document) {
 
 $.Slider = Backbone.View.extend({
-	options: {
+	options: { // default
 		slideContainerEl: '.slides',
 		slideEl: '.slide',
 		prevEl: '.prev',
@@ -22,11 +22,6 @@ $.Slider = Backbone.View.extend({
 		animateDuration: 750,
 		animateEasing: 'swing',
 		action: { }
-	},
-	events: {
-		'click .next': '_scrollNext',
-		'click .prev': '_scrollPrev',
-		'click .controll a': '_jump'
 	},
 	initialize: function (options) {
 		var opt = this.options;
@@ -45,6 +40,7 @@ $.Slider = Backbone.View.extend({
 		this.$cover = $('<div class="slider-cover"/>').hide();
 		this.action.initComplete.call(this); // action
 
+		this._setupEvents();
 		this.render();
 	},
 	render: function () {
@@ -57,6 +53,15 @@ $.Slider = Backbone.View.extend({
 		$('body').append(this.$cover);
 		this._updateNav();
 		this.action.renderComplete.call(this); // action
+	},
+	_setupEvents: function () {
+		var events = {};
+		var opt = this.options;
+		events['click ' + opt.nextEl] = '_scrollNext';
+		events['click ' + opt.prevEl] = '_scrollPrev';
+		events['click ' + opt.controllNavEl + ' a'] = '_jump';
+
+		this.delegateEvents(events);
 	},
 	_buildControll: function () {
 		for (var i=0,l=this.$slide.length; i<l ; i++) {
