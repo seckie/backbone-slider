@@ -40,10 +40,10 @@ window.slider = new $.Slider({
 		jumpEnd: function (index) {
 			showMask.call(this, index);
 		},
-		scrollStart: function (index) {
+		scrollStart: function (index, direction) {
 			return hideMask.call(this);
 		},
-		scrollEnd: function (index) {
+		scrollEnd: function (index, direction) {
 			showMask.call(this, index);
 		}
 	}

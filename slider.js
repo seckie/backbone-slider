@@ -73,32 +73,34 @@ $.Slider = Backbone.View.extend({
 	},
 	_scrollNext: function (e) {
 		var self = this,
+			dir = 1,
 			callback;
 		if (this.index < (this.$slide.length - this.options.maxView)) {
-			callback = this.action.scrollStart.call(this, this.index + 1); // action
+			callback = this.action.scrollStart.call(this, this.index + 1, dir); // action
 			this.$cover.show(); // prevent other events
 			if (callback && callback.promise) {
 				callback.done(function () {
-					self._scroll(1);
+					self._scroll(dir);
 				});
 			} else {
-				this._scroll(1);
+				this._scroll(dir);
 			}
 		}
 		e.preventDefault();
 	},
 	_scrollPrev: function (e) {
 		var self = this,
+			dir = -1,
 			callback;
 		if (this.index > 0) {
-			callback = this.action.scrollStart.call(this, this.index - 1); // action
+			callback = this.action.scrollStart.call(this, this.index - 1, dir); // action
 			this.$cover.show(); // prevent other events
 			if (callback && callback.promise) {
 				callback.done(function () {
-					self._scroll(-1);
+					self._scroll(dir);
 				});
 			} else {
-				this._scroll(-1);
+				this._scroll(dir);
 			}
 		}
 		e.preventDefault();
@@ -114,7 +116,7 @@ $.Slider = Backbone.View.extend({
 			this.options.animateEasing,
 			function () {
 				self.$cover.hide();
-				self.action.scrollEnd.call(self, self.index); // action
+				self.action.scrollEnd.call(self, self.index, dir); // action
 			});
 		(dir > 0) ? this.index ++ : this.index --;
 		this._updateNav();
@@ -206,8 +208,8 @@ $.Slider = Backbone.View.extend({
 		resetComplete: function (index) { },
 		jumpStart: function (index) { },
 		jumpEnd: function (index) { },
-		scrollStart: function (index) { },
-		scrollEnd: function (index) { },
+		scrollStart: function (index, direction) { },
+		scrollEnd: function (index, direction) { },
 		firstSlide: function (index) { },
 		lastSlide: function (index) { }
 	}
