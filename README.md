@@ -8,3 +8,4 @@ See demo:
 - http://seckie.github.com/backbone-slider/mask.html
 - http://seckie.github.com/backbone-slider/action-after-change.html
 - http://seckie.github.com/backbone-slider/with-backbone-router.html
+- http://seckie.github.com/backbone-slider/multiple.html
