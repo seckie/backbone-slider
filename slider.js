@@ -28,8 +28,8 @@ $.Slider = Backbone.View.extend({
 		_.extend(this.options, options);
 		_.extend(this.action, opt.action);
 		// element
-		this.$container = $(opt.slideContainerEl);
-		this.$slide = this.$container.find(opt.slideEl);
+		this.$container = this.$el.find(opt.slideContainerEl);
+		this.$slide = this.$el.find(opt.slideEl);
 		this.$next = this.$el.find(opt.nextEl);
 		this.$prev = this.$el.find(opt.prevEl);
 		this.$controllContainer = this.$el.find(opt.controllNavEl);
