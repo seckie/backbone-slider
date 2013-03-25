@@ -26,6 +26,18 @@ $.Slider = Backbone.View.extend({
 	initialize: function (options) {
 		var opt = this.options;
 		_.extend(this.options, options);
+		// interface functions that should be overridden
+		this.action = {
+			initComplete: function () { },
+			renderComplete: function () { },
+			resetComplete: function (index) { },
+			jumpStart: function (index) { },
+			jumpEnd: function (index) { },
+			scrollStart: function (index, direction) { },
+			scrollEnd: function (index, direction) { },
+			firstSlide: function (index) { },
+			lastSlide: function (index) { }
+		};
 		_.extend(this.action, opt.action);
 		// element
 		this.$container = this.$el.find(opt.slideContainerEl);
@@ -200,18 +212,6 @@ $.Slider = Backbone.View.extend({
 		this.index = index;
 		this._updateNav();
 		this.action.resetComplete.call(this, index); // action
-	},
-	// interface functions that should be overridden
-	action: {
-		initComplete: function () { },
-		renderComplete: function () { },
-		resetComplete: function (index) { },
-		jumpStart: function (index) { },
-		jumpEnd: function (index) { },
-		scrollStart: function (index, direction) { },
-		scrollEnd: function (index, direction) { },
-		firstSlide: function (index) { },
-		lastSlide: function (index) { }
 	}
 });
 
