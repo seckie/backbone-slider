@@ -97,8 +97,10 @@ $.Slider = Backbone.View.extend({
 			} else {
 				this._scroll(dir);
 			}
+		} else {
+			return false;
 		}
-		e.preventDefault();
+		e && e.preventDefault();
 	},
 	_scrollPrev: function (e) {
 		var self = this,
@@ -114,8 +116,10 @@ $.Slider = Backbone.View.extend({
 			} else {
 				this._scroll(dir);
 			}
+		} else {
+			return false;
 		}
-		e.preventDefault();
+		e && e.preventDefault();
 	},
 	_scroll: function (dir) {
 		var self = this,
@@ -197,8 +201,16 @@ $.Slider = Backbone.View.extend({
 			this.index = index;
 			this._updateNav();
 		}
-		if (e) {
-			e.preventDefault();
+		e && e.preventDefault();
+	},
+	next: function () {
+		if (this._scrollNext() === false) {
+			this.jump(0);
+		}
+	},
+	prev: function () {
+		if (this._scrollPrev() === false) {
+			this.jump(this.$slide.length - this.options.maxView);
 		}
 	},
 	jump: function (index) {
