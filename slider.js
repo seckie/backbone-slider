@@ -47,7 +47,9 @@ $.Slider = Backbone.View.extend({
 		this.$controllContainer = this.$el.find(opt.controllNavEl);
 		this.$controll = {};
 		// property
-		this.itemWidth = this.$slide.width() + parseInt(this.$slide.css('margin-left'), 10) + parseInt(this.$slide.css('margin-right'), 10);
+		var marginLeft = parseInt(this.$slide.css('margin-left'), 10) || 0;
+		var marginRight = parseInt(this.$slide.css('margin-right'), 10) || 0;
+		this.itemWidth = this.$slide.width() + marginLeft + marginRight;
 		this.index = opt.defaultIndex;
 		this.$cover = $('<div class="slider-cover"/>').hide();
 		this.action.initComplete.call(this); // action
