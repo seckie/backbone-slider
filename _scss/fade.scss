@@ -1,0 +1,26 @@
+@import "compass/css3";
+$slidewidth: 960px;
+$slideheight: floor($slidewidth / 1.775);
+.slider {
+	position: relative;
+	width: $slidewidth;
+	height: $slideheight;
+	margin: 0 auto;
+}
+.slides {
+	position: relative;
+	z-index: 2;
+	width: $slidewidth;
+}
+.slide {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: $slidewidth;
+	min-height: $slideheight;
+	background-color: #fff;
+}
+
+.slider-nav {
+	z-index: 10;
+}

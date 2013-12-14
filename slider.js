@@ -19,6 +19,7 @@ $.Slider = Backbone.View.extend({
 		currentControllClassName: 'current',
 		defaultIndex: 0,
 		maxView: 1,
+		animateType: 'slide',
 		animateDuration: 750,
 		animateEasing: 'swing',
 		action: { }
@@ -39,6 +40,7 @@ $.Slider = Backbone.View.extend({
 			lastSlide: function (index) { }
 		};
 		_.extend(this.action, opt.action);
+		_.bindAll(this, '_fadePrev', '_fadeNext', '_fade');
 		// element
 		this.$container = this.$el.find(opt.slideContainerEl);
 		this.$slide = this.$el.find(opt.slideEl);
@@ -51,6 +53,7 @@ $.Slider = Backbone.View.extend({
 		var marginRight = parseInt(this.$slide.css('margin-right'), 10) || 0;
 		this.itemWidth = this.$slide.width() + marginLeft + marginRight;
 		this.index = opt.defaultIndex;
+		this.topZIndex = this.$slide.length; // for 'fade' animate type
 		this.$cover = $('<div class="slider-cover"/>').hide();
 		this.action.initComplete.call(this); // action
 
@@ -59,33 +62,46 @@ $.Slider = Backbone.View.extend({
 	},
 	render: function () {
 		this._buildControll();
-		this.$container.css({
-			'margin-left': -1 * this.itemWidth * this.index,
-			'width': this._getWholeWidth(),
-			'visibility': 'visible' 
-		});
+		if (this.options.animateType === 'fade') {
+			this._jumpWithFade(null, this.index);
+			this.$container.css({
+				'visibility': 'visible' 
+			});
+		} else {
+			this.$container.css({
+				'margin-left': -1 * this.itemWidth * this.index,
+				'width': this._getWholeWidth(),
+				'visibility': 'visible' 
+			});
+		}
 		$('body').append(this.$cover);
 		this._updateNav();
 		this.action.renderComplete.call(this); // action
 	},
-	_setupEvents: function () {
+	_setupEvents: function () {//{{{
 		var events = {};
 		var opt = this.options;
-		events['click ' + opt.nextEl] = '_scrollNext';
-		events['click ' + opt.prevEl] = '_scrollPrev';
-		events['click ' + opt.controllNavEl + ' a'] = '_jump';
+		if (opt.animateType === 'fade') {
+			events['click ' + opt.nextEl] = '_fadeNext';
+			events['click ' + opt.prevEl] = '_fadePrev';
+			events['click ' + opt.controllNavEl + ' a'] = '_jumpWithFade';
+		} else {
+			events['click ' + opt.nextEl] = '_scrollNext';
+			events['click ' + opt.prevEl] = '_scrollPrev';
+			events['click ' + opt.controllNavEl + ' a'] = '_jump';
+		}
 
 		this.delegateEvents(events);
-	},
-	_buildControll: function () {
+	},//}}}
+	_buildControll: function () {//{{{
 		for (var i=0,l=this.$slide.length; i<l ; i++) {
 			var el = $('<a/>', { href: '#' + this.$slide[i].id });
 			el[0].index = i;
 			this.$controllContainer.append(el);
 		}
 		this.$controll = this.$controllContainer.find('a');
-	},
-	_scrollNext: function (e) {
+	},//}}}
+	_scrollNext: function (e) {//{{{
 		var self = this,
 			dir = 1,
 			callback;
@@ -102,9 +118,9 @@ $.Slider = Backbone.View.extend({
 		} else {
 			return false;
 		}
-		e && e.preventDefault();
-	},
-	_scrollPrev: function (e) {
+		if (e) { e.preventDefault(); }
+	},//}}}
+	_scrollPrev: function (e) {//{{{
 		var self = this,
 			dir = -1,
 			callback;
@@ -121,9 +137,9 @@ $.Slider = Backbone.View.extend({
 		} else {
 			return false;
 		}
-		e && e.preventDefault();
-	},
-	_scroll: function (dir) {
+		if (e) { e.preventDefault(); }
+	},//}}}
+	_scroll: function (dir) {//{{{
 		var self = this,
 			pos = (dir > 0) ? '-=' + this.itemWidth : '+=' + this.itemWidth;
 		if (!dir) { return; }
@@ -138,8 +154,52 @@ $.Slider = Backbone.View.extend({
 			});
 		(dir > 0) ? this.index ++ : this.index --;
 		this._updateNav();
-	},
-	_updateNav: function () {
+	},//}}}
+	_fadeNext: function (e) {//{{{
+		if (this.index < (this.$slide.length - this.options.maxView)) {
+			callback = this.action.scrollStart.call(this, this.index - 1); // action
+			this.index ++;
+			if (callback && callback.promise) {
+				callback.done(self._fade);
+			} else {
+				this._fade();
+			}
+		} else {
+			return false;
+		}
+		if (e) { e.preventDefault(); }
+	},//}}}
+	_fadePrev: function (e) {//{{{
+		if (this.index > 0) {
+			callback = this.action.scrollStart.call(this, this.index - 1); // action
+			this.index --;
+			if (callback && callback.promise) {
+				callback.done(self._fade);
+			} else {
+				this._fade();
+			}
+		} else {
+			return false;
+		}
+		if (e) { e.preventDefault(); }
+	},//}}}
+	_fade: function () {//{{{
+		var self = this,
+			$slide = $(this.$slide[this.index]);
+		$slide.css('opacity', 0);
+		this.$container.append($slide);
+		$slide.stop(true, true).animate({
+				'opacity': 1
+			}, 
+			this.options.animateDuration,
+			this.options.animateEasing,
+			function () {
+				self.$cover.hide();
+				self.action.jumpEnd.call(self, self.index); // action
+			});
+		this._updateNav();
+	},//}}}
+	_updateNav: function () {//{{{
 		var self = this;
 		if (this.index <= 0) {
 			this.$prev.hide();
@@ -157,20 +217,18 @@ $.Slider = Backbone.View.extend({
 			$(controll).removeClass(self.options.currentControllClassName);
 		});
 		$(this.$controll[this.index]).addClass(this.options.currentControllClassName);
-	},
-	_getWholeWidth: function () {
+	},//}}}
+	_getWholeWidth: function () {//{{{
 		var sum = 0;
 		for (var i=0,l=this.$slide.length; i<l ; i++) {
 			sum += this.itemWidth;
 		}
 		return sum;
-	},
-
-	_jump: function (e, directIndex) {
+	},//}}}
+	_jump: function (e, directIndex) {//{{{
 		var self = this;
 			nav = e ? e.currentTarget : null,
 			index = nav ? nav.index : directIndex,
-			$slide = this.$slide[index],
 			movePos = -1 * this.itemWidth * index,
 			callback = this.action.jumpStart.call(this, index, directIndex); // action
 		this.$cover.show(); // prevent other events
@@ -203,26 +261,87 @@ $.Slider = Backbone.View.extend({
 			this.index = index;
 			this._updateNav();
 		}
-		e && e.preventDefault();
-	},
+		if (e) { e.preventDefault(); }
+	},//}}}
+	_jumpWithFade: function (e, directIndex) {//{{{
+		var self = this;
+			nav = e ? e.currentTarget : null,
+			index = nav ? nav.index : directIndex,
+			$slide = $(this.$slide[index]),
+			callback = this.action.jumpStart.call(this, index, directIndex); // action
+		this.$cover.show(); // prevent other events
+		if (callback && callback.promise) {
+			callback.done(function () {
+				main.call(self, index);
+			});
+		} else {
+			main.call(this, index);
+		}
+
+		function main (index) {
+			if (directIndex) {
+				// by calling 'jump' function from outside (== with no effect)
+				this.$container.append($slide);
+				this.$cover.hide();
+				this.action.jumpEnd.call(this, this.index, directIndex); // action
+			} else {
+				// by navigation 'click' event
+				$slide.css('opacity', 0);
+				this.$container.append($slide);
+				$slide.stop(true, true).animate({
+						'opacity': 1
+					}, 
+					this.options.animateDuration,
+					this.options.animateEasing,
+					function () {
+						self.$cover.hide();
+						self.action.jumpEnd.call(self, self.index); // action
+					});
+			}
+			this.index = index;
+			this._updateNav();
+		}
+		if (e) { e.preventDefault(); }
+	},//}}}
+
 	next: function () {
-		if (this._scrollNext() === false) {
-			this.jump(0);
+		if (this.options.animateType === 'fade') { // fade
+			if (this._fadeNext() === false) {
+				this.jumpWithFade(0);
+			}
+		} else { // scroll
+			if (this._scrollNext() === false) {
+				this.jump(0);
+			}
 		}
 	},
 	prev: function () {
-		if (this._scrollPrev() === false) {
-			this.jump(this.$slide.length - this.options.maxView);
+		if (this.options.animateType === 'fade') { // fade
+			if (this._fadePrev() === false) {
+				this.jumpWithFade(this.$slide.length - this.options.maxView);
+			}
+		} else { // scroll
+			if (this._scrollPrev() === false) {
+				this.jump(this.$slide.length - this.options.maxView);
+			}
 		}
 	},
 	jump: function (index) {
-		this._jump(null, index);
+		if (this.options.animateType === 'fade') { // fade
+			this._jumpWithFade(null, index);
+		} else { // scroll
+			this._jump(null, index);
+		}
 	},
 	reset: function (index) {
-		var movePos = -1 * this.itemWidth * index;
-		this.$container.stop(true, true).css({
-			'margin-left': movePos
-		});
+		if (this.options.animateType === 'fade') { // fade
+			this.$container.append(this.$slide[index]);
+		} else { // scroll
+			var movePos = -1 * this.itemWidth * index;
+			this.$container.stop(true, true).css({
+				'margin-left': movePos
+			});
+		}
 		this.index = index;
 		this._updateNav();
 		this.action.resetComplete.call(this, index); // action
