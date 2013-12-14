@@ -307,7 +307,7 @@ $.Slider = Backbone.View.extend({
 	next: function () {
 		if (this.options.animateType === 'fade') { // fade
 			if (this._fadeNext() === false) {
-				this.jumpWithFade(0);
+				this._jumpWithFade(null, 0);
 			}
 		} else { // scroll
 			if (this._scrollNext() === false) {
@@ -318,7 +318,7 @@ $.Slider = Backbone.View.extend({
 	prev: function () {
 		if (this.options.animateType === 'fade') { // fade
 			if (this._fadePrev() === false) {
-				this.jumpWithFade(this.$slide.length - this.options.maxView);
+				this._jumpWithFade(null, this.$slide.length - this.options.maxView);
 			}
 		} else { // scroll
 			if (this._scrollPrev() === false) {
