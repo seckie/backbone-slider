@@ -157,7 +157,7 @@ $.Slider = Backbone.View.extend({
 	},//}}}
 	_fadeNext: function (e) {//{{{
 		if (this.index < (this.$slide.length - this.options.maxView)) {
-			callback = this.action.scrollStart.call(this, this.index - 1); // action
+			callback = this.action.scrollStart.call(this, this.index + 1); // action
 			this.index ++;
 			if (callback && callback.promise) {
 				callback.done(self._fade);
